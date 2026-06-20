@@ -5,7 +5,7 @@ namespace LeaveManagement.Data
     public class LeaveType
     {
         public int Id { get; set; }
-        [Column(TypeName = "nvarchar(150)")]
+        [Column(TypeName = "nvarchar(150)")] // or [MaxLength(150)]
         public string Name { get; set; }
         public int NumberOfDays { get; set; }
     }
