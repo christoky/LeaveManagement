@@ -1,21 +1,13 @@
-﻿using AutoMapper;
-using LeaveManagement.Data;
-using LeaveManagement.Models.LeaveTypes;
+﻿using LeaveManagement.Models.LeaveTypes;
 using LeaveManagement.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace LeaveManagement.Controllers
 {
+    [Authorize(Roles = Roles.Administrator)]
     public class LeaveTypesController(ILeaveTypesService _leaveTypeSeervice) : Controller
     {
-        
+
         public const string NameExistsValidationMessage = "Leave type with the same name already exists in the database.";
 
 
@@ -34,7 +26,7 @@ namespace LeaveManagement.Controllers
             {
                 return NotFound();
             }
-    
+
             var leaveType = await _leaveTypeSeervice.Get<LeaveTypeReadOnlyVM>(id.Value);
 
             if (leaveType == null)
@@ -69,7 +61,7 @@ namespace LeaveManagement.Controllers
             }*/
 
             //Adding custom validation and model state error
-            if(await _leaveTypeSeervice.CheckIfLeaveTypeNameExists(leaveTypeCreate.Name))
+            if (await _leaveTypeSeervice.CheckIfLeaveTypeNameExists(leaveTypeCreate.Name))
             {
                 ModelState.AddModelError(nameof(leaveTypeCreate.Name), NameExistsValidationMessage);
             }
@@ -78,7 +70,7 @@ namespace LeaveManagement.Controllers
             {
                 //Convert view model to data model
                 await _leaveTypeSeervice.Create(leaveTypeCreate);
-  
+
                 return RedirectToAction(nameof(Index));
             }
             return View(leaveTypeCreate);
