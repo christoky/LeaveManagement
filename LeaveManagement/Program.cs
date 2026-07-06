@@ -1,5 +1,10 @@
 using LeaveManagement.Data;
-using LeaveManagement.Services;
+using LeaveManagement.Services.Email;
+using LeaveManagement.Services.LeaveAllocations;
+using LeaveManagement.Services.LeaveRequests;
+using LeaveManagement.Services.LeaveTypes;
+using LeaveManagement.Services.Periods;
+using LeaveManagement.Services.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -16,8 +21,24 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 //Manually added
 builder.Services.AddScoped<ILeaveTypesService, LeaveTypesService>();
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); //builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
+builder.Services.AddScoped<ILeaveAllocationsService, LeaveAllocationsService>();
+builder.Services.AddScoped<ILeaveRequestsService, LeaveRequestsService>();
+builder.Services.AddScoped<IPeriodsService, PeriodsService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+//This policy allows us to add Authorization in Controlers. Go see exemple in LeaveRequest
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminSupervisorOnly", policy =>
+    {
+        policy.RequireRole(Roles.Administrator, Roles.Supervisor); //either Administrator or Supervisor have Authorization 
+        //policy.RequireRole(Roles.Administrator, Roles.Supervisor); if we add other policy, this line would be a condition "and or &&"
+    });
+});
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); //builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
+builder.Services.AddHttpContextAccessor(); // Add this line to register IHttpContextAccessor
 
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
