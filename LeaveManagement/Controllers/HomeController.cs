@@ -1,6 +1,5 @@
+using LeaveManagement.Application.Models;
 using System.Diagnostics;
-using LeaveManagement.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace LeaveManagement.Controllers
 {

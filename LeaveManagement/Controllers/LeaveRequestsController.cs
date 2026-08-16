@@ -1,8 +1,6 @@
-﻿using LeaveManagement.Data;
-using LeaveManagement.Models.LeaveRequests;
-using LeaveManagement.Services.LeaveRequests;
-using LeaveManagement.Services.LeaveTypes;
-using Microsoft.AspNetCore.Mvc;
+﻿using LeaveManagement.Application.Models.LeaveRequests;
+using LeaveManagement.Application.Services.LeaveRequests;
+using LeaveManagement.Application.Services.LeaveTypes;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace LeaveManagement.Controllers

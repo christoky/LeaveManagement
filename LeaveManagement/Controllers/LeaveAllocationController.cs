@@ -1,8 +1,7 @@
-﻿using LeaveManagement.Models.LeaveAllocations;
-using LeaveManagement.Services.LeaveAllocations;
-using LeaveManagement.Services.LeaveTypes;
-using Microsoft.AspNetCore.Mvc;
-using SQLitePCL;
+﻿
+using LeaveManagement.Application.Models.LeaveAllocations;
+using LeaveManagement.Application.Services.LeaveAllocations;
+using LeaveManagement.Application.Services.LeaveTypes;
 
 namespace LeaveManagement.Controllers
 {
@@ -16,13 +15,13 @@ namespace LeaveManagement.Controllers
             return View(employees);
         }
 
-        [Authorize(Roles=Roles.Administrator)]
+        [Authorize(Roles = Roles.Administrator)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AllocateLeave(string? id)
         {
             await _leaveAllocationsService.AllocateLeave(id);
-            return RedirectToAction(nameof(Details), new {userId = id});
+            return RedirectToAction(nameof(Details), new { userId = id });
         }
 
         [Authorize(Roles = Roles.Administrator)]
@@ -61,7 +60,7 @@ namespace LeaveManagement.Controllers
             allocation.Days = days;
 
             return View(allocation);
-    
+
         }
 
         public async Task<IActionResult> Details(string? userId)

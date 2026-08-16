@@ -1,31 +1,23 @@
+using LeaveManagement.Application;
 using LeaveManagement.Data;
-using LeaveManagement.Services.Email;
-using LeaveManagement.Services.LeaveAllocations;
-using LeaveManagement.Services.LeaveRequests;
-using LeaveManagement.Services.LeaveTypes;
-using LeaveManagement.Services.Periods;
-using LeaveManagement.Services.Users;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection;
+using Serilog;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 
 //Manually added
-builder.Services.AddScoped<ILeaveTypesService, LeaveTypesService>();
-builder.Services.AddScoped<ILeaveAllocationsService, LeaveAllocationsService>();
-builder.Services.AddScoped<ILeaveRequestsService, LeaveRequestsService>();
-builder.Services.AddScoped<IPeriodsService, PeriodsService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddTransient<IEmailSender, EmailSender>();
+// Add services to the container.
+DataServicesRegistraition.AddDataServices(builder.Services, builder.Configuration); // Register data services (By reference to the class DataServicesRegistration in LeaveManagement.Data project)
+//All services are registered in the ApplicationServicesRegistration class in LeaveManagement.Application project
+//builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); //builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
+ApplicationServicesRegistration.AddApplicationServices(builder.Services); // Register application services (By reference to the class ApplicationServicesRegistration in LeaveManagement.Application project)
+
+builder.Host.UseSerilog( (ctx, config) => 
+    config.WriteTo.Console()
+    .ReadFrom.Configuration(ctx.Configuration)
+);
 
 //This policy allows us to add Authorization in Controlers. Go see exemple in LeaveRequest
 builder.Services.AddAuthorization(options =>
@@ -37,11 +29,15 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly()); //builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor(); // Add this line to register IHttpContextAccessor
 
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
+{ 
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+})
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
